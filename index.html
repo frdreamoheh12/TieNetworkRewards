@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tie Network Rewards</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    .box {
+      background: #151b2e;
+      max-width: 420px;
+      margin: auto;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00ffcc55;
+    }
+    input, button {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      background: #00d084;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .admin {
+      margin-top: 30px;
+      background: #111827;
+    }
+    #result, #claims {
+      margin-top: 15px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h1>🎁 TieNetwork Rewards</h1>
+    <p>Enter redeem code and UPI ID to claim ₹10</p>
+
+    <input type="text" id="code" placeholder="Enter Redeem Code">
+    <input type="text" id="upi" placeholder="Enter Your UPI ID">
+
+    <button onclick="redeem()">Redeem Reward</button>
+
+    <div id="result"></div>
+  </div>
+
+  <div class="box admin">
+    <h2>🔐 Admin Panel</h2>
+    <input type="password" id="adminPass" placeholder="Enter Admin Password">
+    <button onclick="showClaims()">Show Claims</button>
+    <button onclick="clearClaims()">Clear Claims</button>
+
+    <div id="claims"></div>
+  </div>
+
+  <script>
+    const correctCode = "TIENETWORK42";
+    const reward = "₹10";
+    const adminPassword = "dreamo123"; // Change this password
+
+    function redeem() {
+      let code = document.getElementById("code").value.trim().toUpperCase();
+      let upi = document.getElementById("upi").value.trim();
+      let result = document.getElementById("result");
+
+      if (code !== correctCode) {
+        result.innerHTML = "❌ Invalid redeem code.";
+        return;
+      }
+
+      if (upi === "" || !upi.includes("@")) {
+        result.innerHTML = "❌ Please enter a valid UPI ID.";
+        return;
+      }
+
+      let claims = JSON.parse(localStorage.getItem("claims")) || [];
+
+      claims.push({
+        code: code,
+        upi: upi,
+        reward: reward,
+        status: "Pending Payment",
+        time: new Date().toLocaleString()
+      });
+
+      localStorage.setItem("claims", JSON.stringify(claims));
+
+      result.innerHTML = `
+        ✅ Reward claim submitted!<br><br>
+        Reward: <b>${reward}</b><br>
+        Your UPI ID: <b>${upi}</b><br><br>
+        Please wait. TieNetwork Team will verify and send payment manually.
+      `;
+    }
+
+    function showClaims() {
+      let pass = document.getElementById("adminPass").value;
+      let claimsBox = document.getElementById("claims");
+
+      if (pass !== adminPassword) {
+        claimsBox.innerHTML = "❌ Wrong admin password.";
+        return;
+      }
+
+      let claims = JSON.parse(localStorage.getItem("claims")) || [];
+
+      if (claims.length === 0) {
+        claimsBox.innerHTML = "No claims yet.";
+        return;
+      }
+
+      claimsBox.innerHTML = "<h3>Pending Claims</h3>";
+
+      claims.forEach((claim, index) => {
+        claimsBox.innerHTML += `
+          <hr>
+          <b>Claim #${index + 1}</b><br>
+          Code: ${claim.code}<br>
+          UPI ID: ${claim.upi}<br>
+          Reward: ${claim.reward}<br>
+          Status: ${claim.status}<br>
+          Time: ${claim.time}<br>
+        `;
+      });
+    }
+
+    function clearClaims() {
+      let pass = document.getElementById("adminPass").value;
+
+      if (pass !== adminPassword) {
+        document.getElementById("claims").innerHTML = "❌ Wrong admin password.";
+        return;
+      }
+
+      localStorage.removeItem("claims");
+      document.getElementById("claims").innerHTML = "✅ All claims cleared.";
+    }
+  </script>
+
+</body>
+</html>
