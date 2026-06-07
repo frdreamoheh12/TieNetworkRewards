@@ -1,153 +1,231 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Tie Network Rewards</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: white;
-      text-align: center;
-      padding: 40px;
-    }
-    .box {
-      background: #151b2e;
-      max-width: 420px;
-      margin: auto;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px #00ffcc55;
-    }
-    input, button {
-      width: 90%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-    button {
-      background: #00d084;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .admin {
-      margin-top: 30px;
-      background: #111827;
-    }
-    #result, #claims {
-      margin-top: 15px;
-      line-height: 1.6;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tie Network Rewards</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:500px;
+}
+
+.card{
+    background:#111827;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 0 25px rgba(0,255,170,.15);
+    margin-bottom:20px;
+}
+
+h1,h2{
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#94a3b8;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    outline:none;
+    border-radius:10px;
+    margin-bottom:12px;
+    background:#1e293b;
+    color:white;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#00c853;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button:hover{
+    background:#00b248;
+}
+
+.admin-btn{
+    margin-top:10px;
+    background:#2563eb;
+}
+
+.clear-btn{
+    margin-top:10px;
+    background:#dc2626;
+}
+
+#result,#claims{
+    margin-top:15px;
+}
+
+.claim{
+    background:#1e293b;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+    line-height:1.7;
+}
+
+hr{
+    border:none;
+    height:1px;
+    background:#334155;
+    margin:10px 0;
+}
+</style>
 </head>
 <body>
 
-  <div class="box">
-    <h1>🎁 TieNetwork Rewards</h1>
-    <p>Enter redeem code and UPI ID to claim ₹10</p>
+<div class="container">
+
+<div class="card">
+    <h1>🎁 Tie Network Rewards</h1>
+    <p class="subtitle">Redeem your reward code and submit your UPI ID.</p>
 
     <input type="text" id="code" placeholder="Enter Redeem Code">
     <input type="text" id="upi" placeholder="Enter Your UPI ID">
 
-    <button onclick="redeem()">Redeem Reward</button>
+    <button onclick="redeemCode()">Redeem Reward</button>
 
     <div id="result"></div>
-  </div>
+</div>
 
-  <div class="box admin">
+<div class="card">
     <h2>🔐 Admin Panel</h2>
-    <input type="password" id="adminPass" placeholder="Enter Admin Password">
-    <button onclick="showClaims()">Show Claims</button>
-    <button onclick="clearClaims()">Clear Claims</button>
+
+    <input type="password" id="adminPassword" placeholder="Admin Password">
+
+    <button class="admin-btn" onclick="showClaims()">View Claims</button>
+    <button class="clear-btn" onclick="clearClaims()">Clear Claims</button>
 
     <div id="claims"></div>
-  </div>
+</div>
 
-  <script>
-    const correctCode = "TIENETWORK42";
-    const reward = "₹10";
-    const adminPassword = "dreamo123"; // Change this password
+</div>
 
-    function redeem() {
-      let code = document.getElementById("code").value.trim().toUpperCase();
-      let upi = document.getElementById("upi").value.trim();
-      let result = document.getElementById("result");
+<script>
+const validCodes = {
+    "TIENETWORK42": "₹10",
+    "TIENETWORK25": "₹25"
+};
 
-      if (code !== correctCode) {
-        result.innerHTML = "❌ Invalid redeem code.";
+const ADMIN_PASSWORD = "dreamo123";
+
+function redeemCode(){
+    const code = document.getElementById("code").value.trim().toUpperCase();
+    const upi = document.getElementById("upi").value.trim();
+    const result = document.getElementById("result");
+
+    if(!validCodes[code]){
+        result.innerHTML = "<p style='color:red'>❌ Invalid Redeem Code</p>";
         return;
-      }
+    }
 
-      if (upi === "" || !upi.includes("@")) {
-        result.innerHTML = "❌ Please enter a valid UPI ID.";
+    if(upi === "" || !upi.includes("@")){
+        result.innerHTML = "<p style='color:red'>❌ Enter a valid UPI ID</p>";
         return;
-      }
+    }
 
-      let claims = JSON.parse(localStorage.getItem("claims")) || [];
+    let claims = JSON.parse(localStorage.getItem("claims")) || [];
 
-      claims.push({
+    claims.push({
         code: code,
+        reward: validCodes[code],
         upi: upi,
-        reward: reward,
         status: "Pending Payment",
         time: new Date().toLocaleString()
-      });
+    });
 
-      localStorage.setItem("claims", JSON.stringify(claims));
+    localStorage.setItem("claims", JSON.stringify(claims));
 
-      result.innerHTML = `
-        ✅ Reward claim submitted!<br><br>
-        Reward: <b>${reward}</b><br>
-        Your UPI ID: <b>${upi}</b><br><br>
-        Please wait. TieNetwork Team will verify and send payment manually.
-      `;
+    result.innerHTML = `
+        <div class="claim">
+            ✅ Reward Claim Submitted<br><br>
+            Reward: <b>${validCodes[code]}</b><br>
+            UPI ID: <b>${upi}</b><br><br>
+            Please wait for <b>Tie Network</b> to verify and send your payment.
+        </div>
+    `;
+}
+
+function showClaims(){
+    const pass = document.getElementById("adminPassword").value;
+    const claimsBox = document.getElementById("claims");
+
+    if(pass !== ADMIN_PASSWORD){
+        claimsBox.innerHTML = "<p style='color:red'>❌ Wrong Admin Password</p>";
+        return;
     }
 
-    function showClaims() {
-      let pass = document.getElementById("adminPass").value;
-      let claimsBox = document.getElementById("claims");
+    const claims = JSON.parse(localStorage.getItem("claims")) || [];
 
-      if (pass !== adminPassword) {
-        claimsBox.innerHTML = "❌ Wrong admin password.";
+    if(claims.length === 0){
+        claimsBox.innerHTML = "<p>No Claims Yet.</p>";
         return;
-      }
+    }
 
-      let claims = JSON.parse(localStorage.getItem("claims")) || [];
+    claimsBox.innerHTML = "<h3>📋 Pending Claims</h3>";
 
-      if (claims.length === 0) {
-        claimsBox.innerHTML = "No claims yet.";
-        return;
-      }
-
-      claimsBox.innerHTML = "<h3>Pending Claims</h3>";
-
-      claims.forEach((claim, index) => {
+    claims.forEach((claim,index)=>{
         claimsBox.innerHTML += `
-          <hr>
-          <b>Claim #${index + 1}</b><br>
-          Code: ${claim.code}<br>
-          UPI ID: ${claim.upi}<br>
-          Reward: ${claim.reward}<br>
-          Status: ${claim.status}<br>
-          Time: ${claim.time}<br>
+        <div class="claim">
+            <b>Claim #${index+1}</b>
+            <hr>
+            Code: ${claim.code}<br>
+            Reward: ${claim.reward}<br>
+            UPI: ${claim.upi}<br>
+            Status: ${claim.status}<br>
+            Time: ${claim.time}
+        </div>
         `;
-      });
-    }
+    });
+}
 
-    function clearClaims() {
-      let pass = document.getElementById("adminPass").value;
+function clearClaims(){
+    const pass = document.getElementById("adminPassword").value;
 
-      if (pass !== adminPassword) {
-        document.getElementById("claims").innerHTML = "❌ Wrong admin password.";
+    if(pass !== ADMIN_PASSWORD){
+        document.getElementById("claims").innerHTML =
+        "<p style='color:red'>❌ Wrong Admin Password</p>";
         return;
-      }
-
-      localStorage.removeItem("claims");
-      document.getElementById("claims").innerHTML = "✅ All claims cleared.";
     }
-  </script>
+
+    localStorage.removeItem("claims");
+
+    document.getElementById("claims").innerHTML =
+    "<p style='color:lime'>✅ All Claims Cleared</p>";
+}
+</script>
 
 </body>
 </html>
